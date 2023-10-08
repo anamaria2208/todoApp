@@ -8,6 +8,17 @@ var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<TodoItemContext>(opt => opt.UseSqlServer(connectionString));
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "todoOrigins",
+                      policy  =>
+                      {
+                          policy.WithOrigins("*")
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();;
+                      });
+});
+
 // DEPENDENCY INJECTION
 builder.Services.AddScoped<ITodoItemRepository, TodoItemRepository>();
 
@@ -26,6 +37,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("todoOrigins");
 
 app.UseAuthorization();
 
