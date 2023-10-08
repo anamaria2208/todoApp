@@ -46,5 +46,29 @@ namespace backend.Controllers
                 return Ok();
             }
         }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteTodo(int id)
+        {
+            var todo = await _todoItemRepository.GetTodoByIdAsync(id);
+            if (todo == null){
+                return NotFound();
+            }
+            else {
+                await _todoItemRepository.DeleteTodoAsync(id);
+                return NoContent();
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<ActionResult> UpdateTodo(int id, TodoItem todo)
+        {
+            var todoExist = await _todoItemRepository.GetTodoByIdAsync(id);
+            if (todoExist == null){
+                return NotFound();
+            }
+            await _todoItemRepository.UpdateTodoAsync(id, todo);
+            return NoContent();
+        }
     }
 }
