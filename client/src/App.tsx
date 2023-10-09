@@ -1,34 +1,22 @@
-import { Container, TextField, Typography, Divider } from '@mui/material';
-import { useEffect, useState } from 'react';
-import CssBaseline from '@mui/material/CssBaseline';
+import Homepage from "./components/Homepage";
+import SignIn from "./components/SignIn";
+import SignUp from "./components/SignUp";
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import { Routes, Route } from "react-router-dom";
 
 function App() {
-  debugger
-  const [todo, setTodo] = useState([])
-
-  const fetchData = async () => {
-    const response = await fetch("https://localhost:5001/api/todoitem/")
-    const data = await response.json();
-    console.log("TODO" ,data)
-    setTodo(data)
-  }
-
-  useEffect(() => {
-    fetchData()
-  }, [])
-  
-
   return (
     <>
-    <CssBaseline />
-    <Container maxWidth="sm">
-    <Typography variant="h2" align='center'>Todo App</Typography>
-    <Divider />
-     <TextField  label="Enter todo ..." variant="outlined" id="fullWidth"/>
-    </Container>
-    
+    <Navbar />
+      <Routes>
+        <Route path="/" element={<Homepage />} />
+        <Route path="/login" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+      </Routes>
+
     </>
-  )
+  );
 }
 
-export default App
+export default App;

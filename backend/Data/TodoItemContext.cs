@@ -1,5 +1,6 @@
 
 using backend.Model;
+using backend.Model.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Data
@@ -11,5 +12,6 @@ namespace backend.Data
         }
 
         public DbSet<TodoItem> TodoItems { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }
