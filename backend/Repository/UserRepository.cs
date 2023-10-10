@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using backend.Data;
 using backend.Model;
 using backend.Model.DTOs;
 using backend.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Repository
 {
@@ -22,6 +19,18 @@ namespace backend.Repository
         {
             _context.Users.Add(user);
             await _context.SaveChangesAsync();
+        }
+
+        // get all users
+        public async Task<IEnumerable<User>> GetAllUsersAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
+        // get user by username
+        public async Task<User> GetUserByUsernameAsync(string username)
+        {
+            return await _context.Users.Where(u => u.Username == username).FirstOrDefaultAsync();
         }
 
 

@@ -19,21 +19,68 @@ namespace backend.Controllers
             _userRepository = userRepository;
         }
 
-        [HttpPost]
-        public async Task<ActionResult> CreateUser([FromBody] UserDto userResponse)
+        [HttpPost("register")]
+        public async Task<ActionResult> RegisterUser([FromBody] UserDto userResponse)
         {
-            if (userResponse == null){
+            // missing email or password
+            if (string.IsNullOrEmpty(userResponse.Username) || string.IsNullOrEmpty(userResponse.Password)){
                 return BadRequest("Invalid user data");
             }
-            else {
-                var user = new User
-                {
-                    PasswordHash = BCrypt.Net.BCrypt.HashPassword(userResponse.Password),
-                    Username = userResponse.Username
-                };
-                await _userRepository.AddUserAsync(user);
-                return Ok();
+
+            // check if username alredy exist in database
+            if (await CheckIfUsernameExist(userResponse.Username)){
+                return Conflict("Username already exist");
             }
+
+            // hash password and create new user
+            else {
+                var hashPassword = HashPassword(userResponse.Password);
+                await CreateUser(userResponse.Username, hashPassword);
+                return Ok("New user created");
+            }
+        }
+
+        [HttpPost("login")]
+        public async Task<ActionResult> LoginUser([FromBody] UserDto userResponse)
+        {
+            var user = await _userRepository.GetUserByUsernameAsync(userResponse.Username);
+            var verifiedPassword = false;
+
+            if (user != null){
+                verifiedPassword = VerifyPassword(userResponse.Password, user.PasswordHash);
+            }
+            if (user == null || !verifiedPassword){
+                return Unauthorized(new { Message = "Invalid username or password" });
+            }
+
+            // todo : issue jwt token
+             
+            return Ok();
+        }
+
+        private async Task<bool> CheckIfUsernameExist(string username)
+        {
+            return await _userRepository.GetUserByUsernameAsync(username) != null;
+        }
+
+        private string HashPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.HashPassword(password);
+        }
+
+        private bool VerifyPassword(string requestPassword, string dbPassword)
+        {
+            return BCrypt.Net.BCrypt.Verify(requestPassword, dbPassword);
+        }
+
+        private async Task CreateUser(string username, string hashedPassword)
+        {
+            var user = new User 
+            {
+                Username = username,
+                PasswordHash = hashedPassword
+            };
+            await _userRepository.AddUserAsync(user);
         }
     }
 }
