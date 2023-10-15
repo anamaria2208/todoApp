@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using backend.Model;
 using backend.Model.DTOs;
@@ -86,15 +87,22 @@ namespace backend.Controllers
 
         private string GenerateJwtToken(string username)
         {
+            
+            // claim
+            List<Claim> claims = new List<Claim> {
+                new Claim(ClaimTypes.Name, username)
+            };
+
             // symetric security key (create and verify jwt token)
-            var secretKey = _configuration.GetSection("JwtSettings")["SecretKey"];
+            var secretKey = _configuration.GetSection("JwtSettings:SecretKey").Value;
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
             issuer: _configuration["JwtSettings:Issuer"],
             audience: _configuration["JwtSettings:Audience"],
-            expires: DateTime.UtcNow.AddHours(12), // Token expiration time
+            expires: DateTime.UtcNow.AddHours(12), // Token expiration time,
+            claims : claims,
             signingCredentials: credentials
             );
 
