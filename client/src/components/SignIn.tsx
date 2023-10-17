@@ -16,25 +16,8 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
 import apiConfig from "../configuration/apiConfig";
-import validateEmail from '../utility/helper';
+import {emailValidation, passwordLengthValidation} from '../utility/helper';
 
-function Copyright(props: any) {
-  return (
-    <Typography
-      variant="body2"
-      color="text.secondary"
-      align="center"
-      {...props}
-    >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        TODO APP
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
 
 // TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
@@ -42,6 +25,7 @@ const defaultTheme = createTheme();
 export default function SignIn() {
 
   const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false)
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     
@@ -50,18 +34,26 @@ export default function SignIn() {
 
     const data = new FormData(event.currentTarget);
     
-    if (!validateEmail(data.get("email") as string)){
+    if (!emailValidation(data.get("email") as string)){
       setEmailError(true)
     }
 
+     if ((data.get("password") as string == '')){
+      setPasswordError(true)
+      return
+    }
+
     else {
+      setEmailError(false)
+      setPasswordError(false)
       const response = await axios.post(`${apiConfig.baseUrl}/auth/login`, {
         // Your data to send in the request body
         username: data.get("email"),
         password: data.get("password"),
       });
-      console.log("response", response.status);
-      console.log("response", response.data);
+      if (response.status === 200){
+
+      }
     }
    
   };
@@ -98,6 +90,7 @@ export default function SignIn() {
               label="Email Address"
               name="email"
               autoComplete="email"
+              type='email'
               autoFocus
               error= {emailError}
               helperText={emailError ? "Email is required" : '' }
@@ -111,6 +104,8 @@ export default function SignIn() {
               type="password"
               id="password"
               autoComplete="current-password"
+              error={passwordError}
+              helperText = {passwordError ? 'Password is required' : ''}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
@@ -138,7 +133,6 @@ export default function SignIn() {
             </Grid>
           </Box>
         </Box>
-        <Copyright sx={{ mt: 8, mb: 4 }} />
       </Container>
     </ThemeProvider>
   );
