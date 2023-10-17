@@ -5,7 +5,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
-import { NavLink } from "react-router-dom";
+import {HomeSharp} from '@mui/icons-material';
 
 
 export default function ButtonAppBar() {
@@ -22,10 +22,10 @@ export default function ButtonAppBar() {
           >
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <NavLink to="/" >TODO APP</NavLink>
+            <Button color='inherit' href="/" startIcon={<HomeSharp />} >TODO APP</Button>
             
           </Typography>
-          <Button color="inherit">Login</Button>
+          <Button href="/login" color='inherit'>Login</Button>
         </Toolbar>
       </AppBar>
     </Box>
