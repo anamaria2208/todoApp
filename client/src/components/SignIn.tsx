@@ -1,4 +1,4 @@
-import {useState} from 'react';
+import { useState } from "react";
 import {
   Avatar,
   Button,
@@ -15,47 +15,52 @@ import {
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import axios from "axios";
-import apiConfig from "../configuration/apiConfig";
-import {emailValidation, passwordLengthValidation} from '../utility/helper';
+import { apiConfig } from "../configuration/apiConfig";
+import { validateEmail, validatePasswordLength } from "../utility/helper";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../redux/features/authSlice";
 
-
-// TODO remove, this demo shouldn't need to reset the theme.
 const defaultTheme = createTheme();
 
 export default function SignIn() {
-
   const [emailError, setEmailError] = useState(false);
-  const [passwordError, setPasswordError] = useState(false)
+  const [passwordError, setPasswordError] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
+  // SUBMIT FORM
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    
-    debugger
     event.preventDefault();
+    setEmailError(false); // reset email error status
+    setPasswordError(false); // reset password error status
 
     const data = new FormData(event.currentTarget);
-    
-    if (!emailValidation(data.get("email") as string)){
-      setEmailError(true)
+    const email = data.get("email") as string;
+    const password = data.get("password") as string;
+
+    if (!validateEmail(email)) {
+      setEmailError(true);
+      return;
     }
 
-     if ((data.get("password") as string == '')){
-      setPasswordError(true)
-      return
+    if (password === "" || !validatePasswordLength(password)) {
+      setPasswordError(true);
+      return;
     }
 
-    else {
-      setEmailError(false)
-      setPasswordError(false)
+    try {
+      debugger;
       const response = await axios.post(`${apiConfig.baseUrl}/auth/login`, {
-        // Your data to send in the request body
-        username: data.get("email"),
-        password: data.get("password"),
+        username: email,
+        password: password,
       });
-      if (response.status === 200){
-
+      if (response.status === 200) {
+        navigate("/todo");
+        dispatch(loginSuccess(response.data));
+        sessionStorage.setItem("jwtToken", response.data);
       }
-    }
-   
+    } catch (e) {}
   };
 
   return (
@@ -90,10 +95,10 @@ export default function SignIn() {
               label="Email Address"
               name="email"
               autoComplete="email"
-              type='email'
+              type="email"
               autoFocus
-              error= {emailError}
-              helperText={emailError ? "Email is required" : '' }
+              error={emailError}
+              helperText={emailError ? "Email is required" : ""}
             />
             <TextField
               margin="normal"
@@ -105,7 +110,7 @@ export default function SignIn() {
               id="password"
               autoComplete="current-password"
               error={passwordError}
-              helperText = {passwordError ? 'Password is required' : ''}
+              helperText={passwordError ? "Password is required" : ""}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}

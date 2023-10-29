@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace backend.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/todo")]
     public class TodoItemController : ControllerBase
     {
         private readonly ITodoItemRepository _todoItemRepository;
